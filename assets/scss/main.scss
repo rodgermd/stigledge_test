@@ -1,1 +1,42 @@
-html {}
+@import "compass";
+@import "compass/layout";
+
+@import "compass/reset-legacy";
+
+@include sticky-footer(54px, "#overall-wrapper", "#root-footer", "#footer");
+$global_padding: 1em;
+
+#header {
+  padding: 0 $global_padding;
+  text-align: right;
+  background: #eee;
+  border-bottom: 2px #ccc solid;
+  height: 50px;
+  ul {
+    @include inline-block;
+    margin-top: 10px;
+  }
+  li {
+    @include inline-block;
+    + li:before {
+      content: '|';
+      margin: 0 5px;
+    }
+  }
+}
+
+#footer {
+  padding: 0 $global_padding;
+  background-color: #eee;
+  border-top: 2px #cc solid;
+  p {
+    padding-top: 10px;
+  }
+}
+
+
+
+
+#content-wrapper {
+  height: 100%;
+}
