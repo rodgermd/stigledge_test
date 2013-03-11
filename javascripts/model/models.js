@@ -2,7 +2,7 @@
  * Edge definition
  * @type {Backbone.Model.extend}
  */
-var Edge = new Backbone.Model.extend({
+var EdgeModel = new Backbone.Model.extend({
   defaults:{
     id                         :null,
     from_node_id               :null,
@@ -28,13 +28,13 @@ var Edge = new Backbone.Model.extend({
  * Edges collection definition
  * @type {Backbone.Model.extend}
  */
-var EdgesCollection = new Backbone.Collection.extend({model:Edge});
+var EdgesCollection = new Backbone.Collection.extend({model:EdgeModel});
 
 /**
  * Point definition
  * @type {Backbone.Model.extend}
  */
-var Point = new Backbone.Model.extend({
+var PointModel = new Backbone.Model.extend({
   defaults:{
     id :null,
     lat:null,
@@ -46,17 +46,20 @@ var Point = new Backbone.Model.extend({
  * Points collection definition
  * @type {Backbone.Model.extend}
  */
-var PointsCollection = new Backbone.Collection.extend({model:Point});
+var PointsCollection = new Backbone.Collection.extend({model:PointModel});
 
 /**
  * Map options
  * @type {Backbone.Model.extend}
  */
-var MapOptions = new Backbone.Model.extend({
-  defaults:{
-    lat :59.912181,
-    lng :10.765572,
-    zoom:16,
-    maptype: new google.maps
+var map_options = {
+  lat           :59.912181,
+  lng           :10.765572,
+  zoom          :16,
+  mapTypeControl:false,
+  mapTypeId     :google.maps.MapTypeId.ROADMAP,
+
+  center:function () {
+    return new google.maps.LatLng(this.lat, this.lng);
   }
-});
+};

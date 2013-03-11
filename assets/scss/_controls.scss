@@ -1,0 +1,35 @@
+.map-type-controls {
+  position: relative;
+  margin: 1em;
+  .control-opener {
+    background-color: rgba(255, 255, 255, .8);
+    &:hover {
+      background-color: #fff;
+    }
+  }
+  ul {
+    position: absolute;
+    display: none;
+    right: 0;
+  }
+  &:hover ul {
+    display: block;
+  }
+  .control-opener, a {
+    color: #666;
+    &:hover {
+      color: #000;
+    }
+    padding: 3px 6px;
+  }
+  a {
+    display: block;
+    background-color: #fff;
+    text-decoration: none;
+    border-bottom: 1px #eee solid;
+    &:hover {
+      border-color: #999;
+    }
+  }
+
+}
