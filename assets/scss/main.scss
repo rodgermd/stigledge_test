@@ -1,10 +1,11 @@
 @import "compass";
 @import "compass/layout";
-
 @import "compass/reset-legacy";
 
-@include sticky-footer(54px, "#overall-wrapper", "#root-footer", "#footer");
 $global_padding: 1em;
+$footer_height: 54px;
+
+@include sticky-footer($footer_height, "#overall-wrapper", "#root-footer", "#footer");
 
 #header {
   padding: 0 $global_padding;
@@ -28,12 +29,19 @@ $global_padding: 1em;
 #footer {
   padding: 0 $global_padding;
   background-color: #eee;
-  border-top: 2px #cc solid;
+  border-top: 2px #ccc solid;
+  height: $footer_height - 2px;
   p {
     padding-top: 10px;
   }
 }
 
+
+#content-wrapper {
+  padding: $global_padding 0;
+  min-height: 100px;
+  background-color: red;
+}
 
 
 

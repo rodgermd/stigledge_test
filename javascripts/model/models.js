@@ -35,10 +35,10 @@ var EdgesCollection = new Backbone.Collection.extend({model:Edge});
  * @type {Backbone.Model.extend}
  */
 var Point = new Backbone.Model.extend({
-  defaults: {
-    id: null,
-    lat: null,
-    lng: null
+  defaults:{
+    id :null,
+    lat:null,
+    lng:null
   }
 });
 
@@ -47,3 +47,16 @@ var Point = new Backbone.Model.extend({
  * @type {Backbone.Model.extend}
  */
 var PointsCollection = new Backbone.Collection.extend({model:Point});
+
+/**
+ * Map options
+ * @type {Backbone.Model.extend}
+ */
+var MapOptions = new Backbone.Model.extend({
+  defaults:{
+    lat :59.912181,
+    lng :10.765572,
+    zoom:16,
+    maptype: new google.maps
+  }
+});
