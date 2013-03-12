@@ -3,6 +3,9 @@
  * @type {Backbone.Model.extend}
  */
 var EdgeDetailsModel = Backbone.Model.extend({
+  initialize: function() {
+    this.attributes.frequency_descending = this.attributes.frequency - this.attributes.frequency_ascending;
+  },
   defaults:{
     id                         :null,
     from_node_id               :null,
@@ -11,8 +14,9 @@ var EdgeDetailsModel = Backbone.Model.extend({
     surface_id                 :null,
     average_velocity_ascending :null,
     average_velocity_descending:null,
-    frequency                  :null,
-    frequency_ascending        :null,
+    frequency                  :0,
+    frequency_ascending        :0,
+    frequency_descending       :0,
     lat_min                    :null,
     lat_max                    :null,
     lng_min                    :null,
@@ -80,18 +84,33 @@ var PolylineModel = Backbone.Model.extend({
     var route_model = this.attributes.route_model;
     this.id = route_model.id;
 
-//    console.log('details: ', route_model.get('details'), 'num clicks: ', route_model.get('details').get('num_clicks'));
-    var line_weight = parseInt(route_model.get('details').get('num_clicks') / 10);
+    var route_details = route_model.get('details');
+    var frequency = route_details.get('frequency');
+    var freq_asc = route_details.get('frequency_ascending');
+    var freq_desc = route_details.get('frequency_descending');
+
+    var line_weight = parseInt(frequency / 10);
     if (line_weight < 3) line_weight = 3;
     if (line_weight > 15) line_weight = 15;
 
-    var v1 = Math.floor(Math.random() * 10);
-    var v2 = Math.floor(Math.random() * 10);
-    var v3 = Math.floor(Math.random() * 10);
+    var v1 = Math.floor(Math.random() * 9);
+    var v2 = Math.floor(Math.random() * 9);
+    var v3 = Math.floor(Math.random() * 9);
+
+    var color = '#' + v1 + v1 + v2 + v2 + v3 + v3;
+
+    var lineSymbol = {
+      path: freq_asc > freq_desc ? google.maps.SymbolPath.FORWARD_CLOSED_ARROW : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+      fillColor: color,
+      fillOpacity: 1,
+      scale: 1.5
+    };
+
     var polyline = new google.maps.Polyline({
-      strokeColor  :'#' + v1 + v2 + v3,
-      strokeOpacity:1.0,
-      strokeWeight :line_weight
+      strokeColor  :color,
+      strokeOpacity:.7,
+      strokeWeight :line_weight,
+      icons: ( freq_asc / freq_desc >= 3 || freq_desc / freq_asc >= 3 ) ? [{ icon: lineSymbol, offset: '50%'}] : null
     });
 
     _.each(route_model.get('points'), function (point) {
