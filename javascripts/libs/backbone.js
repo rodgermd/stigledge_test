@@ -236,7 +236,7 @@
     var attrs = attributes || {};
     this.cid = _.uniqueId('c');
     this.attributes = {};
-    if (options && options.collection) this.collection = options.collection;
+    if (options && options.routes_collection) this.routes_collection = options.routes_collection;
     if (options && options.parse) attrs = this.parse(attrs, options) || {};
     if (defaults = _.result(this, 'defaults')) {
       attrs = _.defaults({}, attrs, defaults);
@@ -484,7 +484,7 @@
       var success = options.success;
 
       var destroy = function() {
-        model.trigger('destroy', model, model.collection, options);
+        model.trigger('destroy', model, model.routes_collection, options);
       };
 
       options.success = function(model, resp, options) {
@@ -506,7 +506,7 @@
     // using Backbone's restful methods, override this to change the endpoint
     // that will be called.
     url: function() {
-      var base = _.result(this, 'urlRoot') || _.result(this.collection, 'url') || urlError();
+      var base = _.result(this, 'urlRoot') || _.result(this.routes_collection, 'url') || urlError();
       if (this.isNew()) return base;
       return base + (base.charAt(base.length - 1) === '/' ? '' : '/') + encodeURIComponent(this.id);
     },
@@ -857,11 +857,11 @@
     // Prepare a model or hash of attributes to be added to this collection.
     _prepareModel: function(attrs, options) {
       if (attrs instanceof Model) {
-        if (!attrs.collection) attrs.collection = this;
+        if (!attrs.routes_collection) attrs.routes_collection = this;
         return attrs;
       }
       options || (options = {});
-      options.collection = this;
+      options.routes_collection = this;
       var model = new this.model(attrs, options);
       if (!model._validate(attrs, options)) return false;
       return model;
@@ -869,7 +869,7 @@
 
     // Internal method to remove a model's ties to a collection.
     _removeReference: function(model) {
-      if (this === model.collection) delete model.collection;
+      if (this === model.routes_collection) delete model.routes_collection;
       model.off('all', this._onModelEvent, this);
     },
 
@@ -1241,7 +1241,7 @@
   var delegateEventSplitter = /^(\S+)\s*(.*)$/;
 
   // List of view options to be merged as properties.
-  var viewOptions = ['model', 'collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
+  var viewOptions = ['model', 'routes_collection', 'el', 'id', 'attributes', 'className', 'tagName', 'events'];
 
   // Set up all inheritable **Backbone.View** properties and methods.
   _.extend(View.prototype, Events, {

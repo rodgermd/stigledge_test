@@ -3,10 +3,10 @@
  * @type {Backbone.Model.extend}
  */
 var EdgeDetailsModel = Backbone.Model.extend({
-  initialize: function() {
+  initialize:function () {
     this.attributes.frequency_descending = this.attributes.frequency - this.attributes.frequency_ascending;
   },
-  defaults:{
+  defaults  :{
     id                         :null,
     from_node_id               :null,
     to_node_id                 :null,
@@ -35,7 +35,7 @@ var EdgeDetailsCollection = Backbone.Collection.extend({
     if (!this.get(id)) {
       console.log('route ajax load details, id: ', id);
       $.ajax({
-        url     :'http://stiglede.eu01.aws.af.cm/api/edge/' + id,
+        url     : get_api_url('edge/')  + id,
         async   :false,
         dataType:'json',
         success :function (json) {
@@ -100,28 +100,32 @@ var PolylineModel = Backbone.Model.extend({
     var color = '#' + v1 + v1 + v2 + v2 + v3 + v3;
 
     var lineSymbol = {
-      path: freq_asc > freq_desc ? google.maps.SymbolPath.FORWARD_CLOSED_ARROW : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-      fillColor: color,
-      fillOpacity: 1,
-      scale: 1.5
+      path       :freq_asc > freq_desc ? google.maps.SymbolPath.FORWARD_CLOSED_ARROW : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
+      fillColor  :color,
+      fillOpacity:1,
+      scale      :1.5
     };
 
     var polyline = new google.maps.Polyline({
       strokeColor  :color,
       strokeOpacity:.7,
       strokeWeight :line_weight,
-      icons: ( freq_asc / freq_desc >= 3 || freq_desc / freq_asc >= 3 ) ? [{ icon: lineSymbol, offset: '50%'}] : null
+      icons        :( freq_asc / freq_desc >= 3 || freq_desc / freq_asc >= 3 ) ? [
+        { icon:lineSymbol, offset:'50%'}
+      ] : null
     });
 
     _.each(route_model.get('points'), function (point) {
       polyline.getPath().push(point);
     });
 
+
     this.attributes.polyline = polyline;
   },
   defaults  :{
-    id      :null,
-    polyline:null
+    id                :null,
+    has_attached_event:false,
+    polyline          :null
   },
   setMap    :function (map) {
     this.get('polyline').setMap(map);

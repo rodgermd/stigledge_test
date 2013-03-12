@@ -1,0 +1,47 @@
+#elevation-chart-holder {
+  position: absolute;
+  z-index: 1000;
+  top: 0;
+  left: 20%;
+  right: 20%;
+  background-color: rgba(255,255,255,0.7);
+  display: none;
+  padding: 20px;
+  border: 1px #ccc solid;
+  &:hover {
+    background-color: white;
+  }
+
+  table {
+    width: 100%;
+    td, th {
+      padding: 5px;
+    }
+    tr {
+      td, th {
+        &:nth-child(2) {
+          text-align: right;
+        }
+      }
+    }
+    [type=checkbox] {
+      margin-left: 0;
+    }
+    i.color-sample {
+      @include inline-block;
+      width: 50px;
+      height: 5px;
+    }
+    label {
+      cursor: pointer;
+    }
+  }
+
+  #elevation-chart-image-holder {
+    height: 100px;
+    margin: 10px 20px;
+    &.loading {
+      background-color: #ccc;
+    }
+  }
+}

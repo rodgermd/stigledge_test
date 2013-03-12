@@ -14,6 +14,7 @@
   </div>
   <div id="content-wrapper">
     <div id="map-container">
+      <div id="elevation-chart-holder"></div>
       <div id="address-holder"></div>
       <div id="map"></div>
       <div id="information-holder"></div>
@@ -25,6 +26,39 @@
   <p>footer texts</p>
 </div>
 
+
+<script type="text/template" id="elevation-chart-template">
+  <table id="elevation-table">
+    <thead>
+    <tr>
+      <th>Route: <i class="color-sample" style="background-color: <%= color %>"></i></th>
+      <th>Ridden: <b data-initial="<%= model.frequency_ascending %>" data-reverse="<%= model.frequency_descending %>"></b> times (<b data-initial="<%= model.frequency_descending %>" data-reverse="<%= model.frequency_ascending %>"></b> in reverse direction)</th>
+    </tr>
+    <tr>
+      <th>Length: <b><%= Math.floor(model.distance /1000, 1) %> km</b></th>
+      <th>Average velosity: <b data-initial="<%= model.average_velocity_ascending %>" data-reverse="<%= model.average_velocity_descending %>"></b> km/h (<b data-initial="<%= model.average_velocity_descending %>" data-reverse="<%= model.average_velocity_ascending %>"></b> km/h in reverse direction)</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr>
+      <td colspan="2">
+        <div id="elevation-chart-image-holder"></div>
+      </td>
+    </tr>
+    </tbody>
+    <tfoot>
+    <tr>
+      <td>
+        <label for="use-reverse-direction"><input type="checkbox" id="use-reverse-direction"> Reverse route direction</label>
+      </td>
+      <td>
+        <span class="total-ascent">Total ascent: <b data-initial="<%= model.ascent %>" data-reverse="<%= model.descent %>"></b> m.</span>
+        <span class="total-ascent">Total descent: <b data-initial="<%= model.descent %>" data-reverse="<%= model.ascent %>"></b> m.</span>
+      </td>
+    </tr>
+    </tfoot>
+  </table>
+</script>
 
 <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyBpPB3FH59oL1a8_1cVyQmSovE2ApSpNu0&libraries=places&sensor=false&v=3.11"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
