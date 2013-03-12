@@ -14,14 +14,68 @@ $(function () {
       this.resize_map_holder();
     },
     on_map_initialize:function () {
-      map = new google.maps.Map(this.$el.get(0), $.extend(map_options, { center:map_options.center() }));
+      map = new google.maps.Map(this.$el.get(0), $.extend(map_options, {
+        center:map_options.center(),
+        mapTypeControlOptions: {
+          style: google.maps.MapTypeControlStyle.DROPDOWN_MENU,
+          mapTypeIds: [
+            google.maps.MapTypeId.ROADMAP,
+            google.maps.MapTypeId.HYBRID,
+            google.maps.MapTypeId.SATELLITE,
+            google.maps.MapTypeId.TERRAIN,
+            'osm', 'topo2', 'topo2raster', 'topo2graatone'
+          ]
+        }
+      }));
+
+      var osmMapType = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+          return "http://tile.openstreetmap.org/" + zoom + "/" + coord.x + "/" + coord.y + ".png";
+        },
+        tileSize: new google.maps.Size(256, 256),
+        isPng: true,
+        alt: "OpenStreetMap",
+        name: "OSM",
+        maxZoom: 19
+      });
+      var topo2MapType = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+          return 'http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2&zoom=' + zoom + '&x=' + coord.x + '&y=' + coord.y; },
+        tileSize: new google.maps.Size(256, 256),
+        isPng: true,
+        alt: "Statens Kartverk Topografiske Norgeskart",
+        name: "Statkart Topo",
+        maxZoom: 19
+      });
+      var toporaster2MapType = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+          return 'http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=toporaster2&zoom=' + zoom + '&x=' + coord.x + '&y=' + coord.y; },
+        tileSize: new google.maps.Size(256, 256),
+        isPng: true,
+        alt: "Statens Kartverk Topografiske Norgeskart",
+        name: "Statkart Toporaster",
+        maxZoom: 19
+      });
+      var topo2graatoneMapType = new google.maps.ImageMapType({
+        getTileUrl: function (coord, zoom) {
+          return 'http://opencache.statkart.no/gatekeeper/gk/gk.open_gmaps?layers=topo2graatone&zoom=' + zoom + '&x=' + coord.x + '&y=' + coord.y; },
+        tileSize: new google.maps.Size(256, 256),
+        isPng: true,
+        alt: "Statens Kartverk Topografiske Norgeskart",
+        name: "Statkart Gratone",
+        maxZoom: 19
+      });
+
+      map.mapTypes.set('osm', osmMapType);
+      map.mapTypes.set('topo2', topo2MapType);
+      map.mapTypes.set('topo2raster', toporaster2MapType);
+      map.mapTypes.set('topo2graatone', topo2graatoneMapType);
+
     },
     render           :function () {
       if (!this.is_initialized()) {
         this.$el.trigger('map.initialize');
       }
-      var controls = new ControlsView().render().$el;
-      controls.appendTo(this.$el);
     },
     // checks if map is initialized
     is_initialized   :function () {
@@ -37,29 +91,6 @@ $(function () {
 
   });
 
-  /**
-   * Map controls renderer
-   */
-  var ControlsView = Backbone.View.extend({
-    template       :_.template($('#map-type-controls').html()),
-    events         :{
-      "click .switches-map-type":"switch_map_type"
-    },
-    render         :function () {
-      this.$el.html(this.template({ maptype:'hybrid' }));
-      map.controls[google.maps.ControlPosition.TOP_RIGHT].push(this.el);
-      return this;
-    },
-    switch_map_type:function (e) {
-      var $link = $(e.target);
-      console.log(this, $link);
-      var match = $link.attr('class').match(/map-type-([\w\d]+)/);
-      if (match.length < 2) return;
-      var type_id = match[1];
-      map.setMapTypeId(type_id);
-    }
-  });
-
 
 //
 //  var RoutesListView = new Backbone.View.extend({
@@ -73,14 +104,9 @@ $(function () {
 
   var AppController = Backbone.Router.extend({
     routes :{
-      ""          :'general',
-      "!:map_type":"maptype"
+      ""          :'general'
     },
     general:function () {
-      return new MapView().render();
-    },
-    maptype: function(maptype) {
-      map_options.mapTypeId = google.maps.MapTypeId[maptype.toUpperCase()];
       return new MapView().render();
     }
   });

@@ -50,13 +50,11 @@ var PointsCollection = new Backbone.Collection.extend({model:PointModel});
 
 /**
  * Map options
- * @type {Backbone.Model.extend}
  */
 var map_options = {
   lat           :59.912181,
   lng           :10.765572,
-  zoom          :16,
-  mapTypeControl:false,
+  zoom          :12,
   mapTypeId     :google.maps.MapTypeId.ROADMAP,
 
   center:function () {
