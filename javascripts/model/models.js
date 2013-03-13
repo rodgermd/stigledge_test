@@ -35,7 +35,7 @@ var EdgeDetailsCollection = Backbone.Collection.extend({
     if (!this.get(id)) {
       console.log('route ajax load details, id: ', id);
       $.ajax({
-        url     : get_api_url('edge/')  + id,
+        url     :get_api_url('edge/') + id,
         async   :false,
         dataType:'json',
         success :function (json) {
@@ -82,6 +82,8 @@ var RoutesCollection = Backbone.Collection.extend({ model:RouteModel});
 var PolylineModel = Backbone.Model.extend({
   initialize:function () {
     var route_model = this.attributes.route_model;
+    var $this = this;
+
     this.id = route_model.id;
 
     var route_details = route_model.get('details');
@@ -115,8 +117,15 @@ var PolylineModel = Backbone.Model.extend({
       ] : null
     });
 
+    $this.attributes.points_reversed = new Array();
+
+
+    this.attributes.bounding_box = new google.maps.LatLngBounds();
+
     _.each(route_model.get('points'), function (point) {
       polyline.getPath().push(point);
+      $this.attributes.points_reversed.unshift(point);
+      $this.get('bounding_box').extend(point);
     });
 
 
@@ -125,7 +134,9 @@ var PolylineModel = Backbone.Model.extend({
   defaults  :{
     id                :null,
     has_attached_event:false,
-    polyline          :null
+    polyline          :null,
+    points_reversed   :null,
+    bounding_box      :null
   },
   setMap    :function (map) {
     this.get('polyline').setMap(map);

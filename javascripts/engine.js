@@ -200,7 +200,7 @@ $(function () {
 
       if (!this.elevation_data.reverse) {
         this.chart_image_holder.trigger('image-loading');
-        return this.elevation_service.getElevationAlongPath({ path:this.model.get('polyline').getPath().getArray().reverse(), samples:100}, $.proxy(this.plot_elevation_graph, this));
+        return this.elevation_service.getElevationAlongPath({ path:this.model.get('points_reversed'), samples:100}, $.proxy(this.plot_elevation_graph, this));
       }
 
       return this.chart_image_holder.trigger('image-loaded', this.elevation_data.reverse);
