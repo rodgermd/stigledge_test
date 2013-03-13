@@ -83,6 +83,9 @@ $(function () {
       var $this = this;
       var load_edges_callback = $.proxy($this.render_routes, $this);
 
+      var autocomplete = new google.maps.places.Autocomplete($("#autocomplete-field", this.$el).get(0));
+      autocomplete.bindTo('bounds', map);
+
       // wait for map initialize complete
       setTimeout(function () {
         google.maps.event.addListener(map, 'dragend', load_edges_callback);
@@ -91,6 +94,16 @@ $(function () {
         google.maps.event.addListener(map, 'click', $.proxy(function () {
           $("#elevation-chart-holder > .elevation-view-holder:first", $this.$el).trigger('elevation.hide')
         }, $this));
+
+        google.maps.event.addListener(autocomplete, 'place_changed', function() {
+          var place = autocomplete.getPlace();
+          if (place.geometry.viewport) {
+            map.fitBounds(place.geometry.viewport);
+          } else {
+            map.setCenter(place.geometry.location);
+            map.setZoom(17);  // Why 17? Because it looks good.
+          }
+        });
       }, 200);
     },
     render           :function () {

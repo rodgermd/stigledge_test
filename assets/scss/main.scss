@@ -1,6 +1,6 @@
 @import "compass";
 @import "compass/layout";
-@import "compass/reset-legacy";
+@import "compass/css3/transition";
 @import "elevation_chart";
 
 $global_padding: 1em;
@@ -27,6 +27,24 @@ $footer_height: 54px;
   }
 }
 
+#search-holder {
+  height: 40px;
+  padding: 0 20px;
+  font-size: 1.1em;
+  font-weight: bold;
+  b{
+    vertical-align: middle;
+    padding-right: 1em;
+  }
+  input {
+    width: 25%;
+    margin-bottom: 0;
+    &:focus {
+      width: 50%;
+    }
+  }
+}
+
 #footer {
   padding: 0 $global_padding;
   background-color: #eee;
@@ -40,8 +58,9 @@ $footer_height: 54px;
 #content-wrapper {
   padding: $global_padding 0;
   min-height: 100px;
-
-  position: relative;
+  #map-container {
+    position: relative;
+  }
 }
 
 #map {
