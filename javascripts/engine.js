@@ -4,6 +4,10 @@ $(function () {
     events           :{
       'map.initialize':'on_map_initialize'
     },
+    init             :function () {
+      this.$el.trigger('map.initialize');
+      return this;
+    },
     initialize       :function () {
       var resize_timeout;
       var $this = this;
@@ -84,14 +88,16 @@ $(function () {
         google.maps.event.addListener(map, 'dragend', load_edges_callback);
         google.maps.event.addListener(map, 'resize', load_edges_callback);
         google.maps.event.addListener(map, 'zoom_changed', load_edges_callback);
+        google.maps.event.addListener(map, 'click', $.proxy(function () {
+          $("#elevation-chart-holder > .elevation-view-holder:first", $this.$el).trigger('elevation.hide')
+        }, $this));
       }, 200);
     },
     render           :function () {
-      console.log('try');
       if (!this.is_initialized()) {
         var $this = this;
-//        google.load('visualization', '1', {packages: ['columnchart']});
-        return setTimeout($.proxy(function(){ $this.$el.trigger('map.initialize') }, $this), 200);
+        console.log('waiting for required objects...');
+        return setTimeout($.proxy($this.render, $this), 300);
       }
     },
     render_routes    :function () {
@@ -99,7 +105,7 @@ $(function () {
     },
     // checks if map is initialized
     is_initialized   :function () {
-      return typeof map != 'undefined';
+      return typeof map != 'undefined' && $('body').is('.visualization-loaded');
     },
     // resizes map
     resize_map_holder:function () {
@@ -107,98 +113,102 @@ $(function () {
       $("#map", this.$el).height(h);
       if (map) google.maps.event.trigger(map, 'resize');
     }
-
-
   });
 
   var ElevationChartView = Backbone.View.extend({
     // model is PolylineModel
-    template           :_.template($('#elevation-chart-template').html()),
-    elevation_data     :{
+    template            :_.template($('#elevation-chart-template').html()),
+    elevation_data      :{
       normal :null,
       reverse:null
     },
-    elevation_service  :new google.maps.ElevationService(),
-    events             :{
+    initialize: function() {
+      this.$el.addClass('elevation-view-holder');
+    },
+    chart_image_holder: null,
+    elevation_service   :new google.maps.ElevationService(),
+    events              :{
       "change #use-reverse-direction"              :"on_change_direction",
       "image-loading #elevation-chart-image-holder":"onbefore_imageload",
-      "image-loaded #elevation-chart-image-holder" :"onafter_imageload"
+      "image-loaded #elevation-chart-image-holder" :"onafter_imageload",
+      "elevation.hide"                             :"on_elevation_hide",
+      "elevation.show"                             :"on_elevation_show"
     },
-    render             :function () {
+    render              :function () {
       var $this = this;
       $this.$el.html(this.template({
         color:$this.model.get('polyline').strokeColor,
         model:this.model.get('route_model').get('details').toJSON()
       }));
 
+      this.chart_image_holder = $('#elevation-chart-image-holder', this.$el);
       $("#use-reverse-direction", this.$el).trigger('change');
 
       return this.$el;
     },
-    on_change_direction:function () {
+    on_change_direction :function () {
       var $checkbox = $("#use-reverse-direction", this.$el);
-      ($checkbox.is(':checked')) ? this.use_normal_data() : this.use_reverse_data();
+      ($checkbox.is(':checked')) ? this.use_reverse_data() : this.use_normal_data();
     },
-    use_normal_data    :function () {
+    on_elevation_hide: function() {
+      this.$el.slideUp();
+    },
+    on_elevation_show: function() {
+      this.$el.slideDown();
+    },
+    use_normal_data     :function () {
       $('[data-initial]', this.$el).each(function () {
         var $e = $(this);
         $e.text($e.attr('data-initial'));
       });
 
-      var $h = $('#elevation-chart-image-holder', this.$el);
-
       if (!this.elevation_data.normal) {
-        $h.trigger('image-loading');
-        return this.elevation_service.getElevationAlongPath({ path:this.model.get('polyline').getPath()}, function (data) {
-          $h.trigger('image-loaded', data);
-        });
+        this.chart_image_holder.trigger('image-loading');
+        return this.elevation_service.getElevationAlongPath({ path:this.model.get('polyline').getPath().getArray(), samples: 100}, $.proxy(this.plot_elevation_graph, this));
       }
 
-      return  $h.trigger('image-loaded', this.elevation_data.normal);
+      return this.chart_image_holder.trigger('image-loaded', this.elevation_data.normal);
     },
-    use_reverse_data   :function () {
+    use_reverse_data    :function () {
       $('[data-reverse]', this.$el).each(function () {
         var $e = $(this);
         $e.text($e.attr('data-reverse'));
       });
 
-      var $h = $('#elevation-chart-image-holder', this.$el);
-
       if (!this.elevation_data.reverse) {
-        $h.trigger('image-loading');
-        return this.elevation_service.getElevationAlongPath({ path:this.model.get('polyline').getPath().getArray(), samples: 100}, this.plot_elevation_graph);
+        this.chart_image_holder.trigger('image-loading');
+        return this.elevation_service.getElevationAlongPath({ path:this.model.get('polyline').getPath().getArray().reverse(), samples:100}, $.proxy(this.plot_elevation_graph, this));
       }
 
-      return  $h.trigger('image-loaded', this.elevation_data.reverse);
+      return this.chart_image_holder.trigger('image-loaded', this.elevation_data.reverse);
     },
-    onbefore_imageload :function () {
-      var $h = $("#elevation-chart-image-holder", this.$el);
-      $h.empty().addClass('loading').text('loading elevations data ...');
+    onbefore_imageload  :function () {
+      this.chart_image_holder.empty().addClass('loading').text('loading elevations data ...');
     },
-    onafter_imageload  :function () {
-      var $h = $("#elevation-chart-image-holder", this.$el);
-      $h.empty().removeClass('loading');
+    onafter_imageload   :function () {
+      this.chart_image_holder.empty().removeClass('loading');
     },
-    plot_elevation_graph: function(data, status) {
-      var $h = $('#elevation-chart-image-holder', this.$el);
-      if (status != google.maps.ElevationStatus.OK) return $h.trigger('image-error');
+    plot_elevation_graph:function (data, status) {
+      if (status != google.maps.ElevationStatus.OK) return this.chart_image_holder.trigger('image-error');
 
-      $h.trigger('image-loaded');
+      this.chart_image_holder.trigger('image-loaded');
 
-      var elevation_chart_place = $('<div id="elevation-chart"/>').appendTo($h);
+      var elevation_chart_place = $('<div id="elevation-chart-image"/>').appendTo(this.chart_image_holder);
 
       var chart_object = new google.visualization.ColumnChart(elevation_chart_place.get(0));
       var chart_data = new google.visualization.DataTable();
       chart_data.addColumn('string', 'Sample');
       chart_data.addColumn('number', 'Elevation');
 
-      _.map(data, function(result){ chart_data.addRow(['', result.elevation]);});
+      _.map(data, function (result) {
+        chart_data.addRow(['', result.elevation]);
+      });
 
       chart_object.draw(chart_data, {
-        width: elevation_chart_place.width(),
-        height: elevation_chart_place.height(),
-        legend: 'none',
-        titleY: 'Elevation (m)'
+        width :elevation_chart_place.width(),
+        height:elevation_chart_place.height(),
+        legend:'none',
+        titleY:'Elevation (m)'
       });
     }
   });
@@ -310,8 +320,7 @@ $(function () {
     polyline_onclick    :function (polyline_model) {
       $("#elevation-chart-holder")
         .empty()
-        .append(new ElevationChartView({ model:polyline_model }).render())
-        .slideDown();
+        .append(new ElevationChartView({ model:polyline_model }).render().trigger('elevation.show'))
     },
     polyline_onmouseover:function (polyline_model) {
       polyline_model.get('polyline').setOptions({strokeOpacity:1});
@@ -327,7 +336,7 @@ $(function () {
       "":'general'
     },
     general:function () {
-      return new MapView().render();
+      return new MapView().init().render();
     }
   });
 
@@ -336,7 +345,7 @@ $(function () {
   var rendered_routes = {0:new PolylinesCollection(), 50:new PolylinesCollection(), 150:new PolylinesCollection(), 450:new PolylinesCollection(), 1350:new PolylinesCollection() };
   var app = new AppController();
 
-  get_api_url = function(point) {
+  get_api_url = function (point) {
     return "http://stiglede.eu01.aws.af.cm/api/" + point;
   };
   Backbone.history.start();
