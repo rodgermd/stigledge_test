@@ -2,7 +2,9 @@ $(function () {
   var MapView = Backbone.View.extend({
     routes_view      :null,
     events           :{
-      'map.initialize':'on_map_initialize'
+      'map.initialize':'on_map_initialize',
+      'loading_start' : 'on_routes_loading_start',
+      'loading_finished' : 'on_routes_loading_finished'
     },
     init             :function () {
       this.$el.trigger('map.initialize');
@@ -88,6 +90,8 @@ $(function () {
 
       // wait for map initialize complete
       setTimeout(function () {
+        google.maps.event.addListener(map, 'dragstart', function(){ $this.$el.trigger('loading_start');});
+        google.maps.event.addListener(map, 'dragend', function(){ $this.$el.trigger('loading_finished');});
         google.maps.event.addListener(map, 'dragend', load_edges_callback);
         google.maps.event.addListener(map, 'resize', load_edges_callback);
         google.maps.event.addListener(map, 'zoom_changed', load_edges_callback);
@@ -105,6 +109,12 @@ $(function () {
           }
         });
       }, 200);
+    },
+    on_routes_loading_start: function() {
+      this.$el.addClass('loading');
+    },
+    on_routes_loading_finished: function() {
+      this.$el.removeClass('loading');
     },
     render           :function () {
       if (!this.is_initialized()) {
@@ -244,6 +254,7 @@ $(function () {
         console.error('Google Map is not defined yet');
         return false;
       }
+
       $this.update_detail_index();
       $this.update_collection();
 
