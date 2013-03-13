@@ -342,6 +342,9 @@ $(function () {
       return result;
     },
     polyline_onclick    :function (polyline_model) {
+      map.fitBounds(polyline_model.get('bounding_box'));
+      map.setZoom(map.getZoom() - 1);
+      map.panBy(0, -150); // move map to show the route covered by elevation chart
       $("#elevation-chart-holder")
         .empty()
         .append(new ElevationChartView({ model:polyline_model }).render().trigger('elevation.show'))
