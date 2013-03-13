@@ -1,6 +1,6 @@
 /**
  * Edge definition
- * @type {Backbone.Model.extend}
+ * @type {Backbone.Model}
  */
 var EdgeDetailsModel = Backbone.Model.extend({
   initialize:function () {
@@ -28,8 +28,17 @@ var EdgeDetailsModel = Backbone.Model.extend({
   }
 });
 
+/**
+ * Collection of EdgeDetail
+ * @type {Backbone.Collection}
+ */
 var EdgeDetailsCollection = Backbone.Collection.extend({
   model:EdgeDetailsModel,
+  /**
+   * Tries to get model by id, if it is not found - will use ajax
+   * @param id
+   * @return {EdgeDetailsModel}
+   */
   by_id:function (id) {
     var $this = this;
     if (!this.get(id)) {
@@ -49,8 +58,8 @@ var EdgeDetailsCollection = Backbone.Collection.extend({
 });
 
 /**
- * Point definition
- * @type {Backbone.Model.extend}
+ * Routes model
+ * @type {Backbone.Model}
  */
 var RouteModel = Backbone.Model.extend({
   initialize:function () {
@@ -63,6 +72,7 @@ var RouteModel = Backbone.Model.extend({
       }
       // unset raw data
       delete this.attributes.points_raw;
+      // load edge detail
       this.attributes.details = loaded_edge_details.by_id(this.id);
     }
   },
@@ -75,10 +85,14 @@ var RouteModel = Backbone.Model.extend({
 
 /**
  * Points collection definition
- * @type {Backbone.Model.extend}
+ * @type {Backbone.Collection}
  */
 var RoutesCollection = Backbone.Collection.extend({ model:RouteModel});
 
+/**
+ * Polyline model
+ * @type {Backbone.Model}
+ */
 var PolylineModel = Backbone.Model.extend({
   initialize:function () {
     var route_model = this.attributes.route_model;
@@ -91,6 +105,7 @@ var PolylineModel = Backbone.Model.extend({
     var freq_asc = route_details.get('frequency_ascending');
     var freq_desc = route_details.get('frequency_descending');
 
+    // define polyline width
     var line_weight = parseInt(frequency / 10);
     if (line_weight < 3) line_weight = 3;
     if (line_weight > 15) line_weight = 15;
@@ -112,22 +127,21 @@ var PolylineModel = Backbone.Model.extend({
       strokeColor  :color,
       strokeOpacity:.7,
       strokeWeight :line_weight,
+      // use icon only if frequency in one way is more than another in 3 times or more
       icons        :( freq_asc / freq_desc >= 3 || freq_desc / freq_asc >= 3 ) ? [
         { icon:lineSymbol, offset:'50%'}
       ] : null
     });
 
     $this.attributes.points_reversed = new Array();
+    $this.attributes.bounding_box = new google.maps.LatLngBounds();
 
-
-    this.attributes.bounding_box = new google.maps.LatLngBounds();
-
+    // prepare path, reverse path and bounding box
     _.each(route_model.get('points'), function (point) {
-      polyline.getPath().push(point);
-      $this.attributes.points_reversed.unshift(point);
+      polyline.getPath().push(point); // add point in normal way
+      $this.get('points_reversed').unshift(point); // prepend point to reversed array
       $this.get('bounding_box').extend(point);
     });
-
 
     this.attributes.polyline = polyline;
   },
@@ -138,14 +152,18 @@ var PolylineModel = Backbone.Model.extend({
     points_reversed   :null,
     bounding_box      :null
   },
+  /**
+   * Attaches or detaches polyline to the map
+   * @param map
+   */
   setMap    :function (map) {
     this.get('polyline').setMap(map);
   }
 });
 
 /**
- * Plylines collection definition
- * @type {Backbone.Model.extend}
+ * Polylines collection definition
+ * @type {Backbone.Collection}
  */
 var PolylinesCollection = Backbone.Collection.extend({
   model :PolylineModel,
@@ -157,17 +175,20 @@ var PolylinesCollection = Backbone.Collection.extend({
 });
 
 /**
- * Map options
+ * Default google map options
  */
 var map_options = {
   lat      :59.912181,
   lng      :10.765572,
   zoom     :12,
   mapTypeId:google.maps.MapTypeId.ROADMAP,
-
   center:function () {
     return new google.maps.LatLng(this.lat, this.lng);
   }
 };
 
+/**
+ * Caches loaded ajax data edge/detail
+ * @type {EdgeDetailsCollection}
+ */
 var loaded_edge_details = new EdgeDetailsCollection();

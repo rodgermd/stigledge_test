@@ -1,16 +1,15 @@
-#elevation-chart-holder {
+#elevation-chart-holder { // general wrapper
   position: absolute;
   z-index: 1000;
   top: 40px;
   left: 20%;
   right: 20%;
-  .elevation-view-holder {
+  .elevation-view-holder { // styled wrapper
     background-color: rgba(255, 255, 255, 0.7);
     display: none;
     padding: 5px 20px;
     border: 1px #ccc solid;
     font-size: .9em;
-
     &:hover {
       background-color: white;
     }
