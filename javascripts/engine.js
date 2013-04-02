@@ -204,7 +204,7 @@ $(function () {
       console.log('render polyline chart', $this.details);
 
       $this.$el.html(this.template({
-        color: $this.model.get('polyline').strokeColor,
+        color: $this.model.get('polyline').get('polyline').strokeColor,
         details: $this.details.toJSON(),
         route: $this.model,
         length_measured: google.maps.geometry.spherical.computeLength($this.model.get('polyline').get('polyline').getPath())
@@ -253,7 +253,7 @@ $(function () {
       if (!this.elevation_data.reverse) {
         this.chart_image_holder.trigger('image-loading');
         // ask elevator for data
-        return this.elevation_service.getElevationAlongPath({ path: this.model.get('points_reversed'), samples: 100}, $.proxy(this.plot_elevation_graph, this));
+        return this.elevation_service.getElevationAlongPath({ path: this.model.get('polyline').get('points_reversed'), samples: 100}, $.proxy(this.plot_elevation_graph, this));
       }
 
       // triggers image loaded event
@@ -336,7 +336,7 @@ $(function () {
     on_routes_received  : function () {
       var $this = this;
       $.map($this.polylines, function (o) {
-        o.setMap(null)
+        o.get('polyline').setMap(null)
       });
       $this.polylines = [];
       console.log('processing items:', $this.routes.models.length);

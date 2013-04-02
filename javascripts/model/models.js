@@ -113,13 +113,16 @@ var PolylineModel = Backbone.Model.extend({
     if (line_weight < 3) line_weight = 3;
     if (line_weight > 15) line_weight = 15;
 
-    var color = '#' + route_model.get('surface_id') + route_model.get('surface_id') + route_model.get('surface_id');
+    var color = this.get_color(route_model.get('surface_id'));
+    console.log(route_model.get('surface_id'), color);
 
     var lineSymbol = {
       path       : freq_asc > freq_desc ? google.maps.SymbolPath.FORWARD_CLOSED_ARROW : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-      fillColor  : color,
+      fillColor  : "#009900",
       fillOpacity: 1,
-      scale      : 1.5
+      strokeColor: "#fff",
+      strokeWeight: 1,
+      scale      : 3
     };
 
     var polyline = new google.maps.Polyline({
@@ -151,13 +154,17 @@ var PolylineModel = Backbone.Model.extend({
     points_reversed   : null,
     bounding_box      : null
   },
-  /**
-   * Attaches or detaches polyline to the map
-   * @param map
-   */
-  setMap    : function (map) {
-    this.get('polyline').setMap(map);
+  get_color: function(surface_id) {
+    var color = '#999';
+    switch(surface_id)
+    {
+      case '1': color = 'blue'; break;
+      case '2': color = 'magenta'; break;
+      case '3': color = 'black'; break;
+    }
+    return color;
   }
+
 });
 
 /**
