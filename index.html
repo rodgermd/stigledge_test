@@ -35,12 +35,12 @@
   <table id="elevation-table">
     <thead>
     <tr>
-      <th>Route: <i class="color-sample" style="background-color: <%= color %>"></i></th>
-      <th>Ridden: <b data-initial="<%= model.frequency_ascending %>" data-reverse="<%= model.frequency_descending %>"></b> times (<b data-initial="<%= model.frequency_descending %>" data-reverse="<%= model.frequency_ascending %>"></b> in reverse direction)</th>
+      <th>details: <i class="color-sample" style="background-color: <%= color %>"></i></th>
+      <th>Ridden: <b data-initial="<%= details.frequency_ascending %>" data-reverse="<%= details.frequency_descending %>"></b> times (<b data-initial="<%= details.frequency_descending %>" data-reverse="<%= details.frequency_ascending %>"></b> in reverse direction)</th>
     </tr>
     <tr>
-      <th>Length: <b><%= Math.floor(model.distance /1000, 1) %> km</b></th>
-      <th>Average velosity: <b data-initial="<%= model.average_velocity_ascending %>" data-reverse="<%= model.average_velocity_descending %>"></b> km/h (<b data-initial="<%= model.average_velocity_descending %>" data-reverse="<%= model.average_velocity_ascending %>"></b> km/h in reverse direction)</th>
+      <th>Length: <b><%= Math.floor(details.distance /1000, 2) %> km</b> (<%= Math.floor(length_measured, 1)%> meters measured by google). #<%= route.id %>, <%= route.get('points').length %> points</th>
+      <th>Average velosity: <b data-initial="<%= details.average_velocity_ascending %>" data-reverse="<%= details.average_velocity_descending %>"></b> km/h (<b data-initial="<%= details.average_velocity_descending %>" data-reverse="<%= details.average_velocity_ascending %>"></b> km/h in reverse direction)</th>
     </tr>
     </thead>
     <tbody>
@@ -53,11 +53,11 @@
     <tfoot>
     <tr>
       <td>
-        <label for="use-reverse-direction" class="checkbox"><input type="checkbox" id="use-reverse-direction"> Reverse route direction</label>
+        <label for="use-reverse-direction" class="checkbox"><input type="checkbox" id="use-reverse-direction"> Reverse details direction</label>
       </td>
       <td>
-        <span class="total-ascent">Total ascent: <b data-initial="<%= model.ascent %>" data-reverse="<%= model.descent %>"></b> m.</span>
-        <span class="total-ascent">Total descent: <b data-initial="<%= model.descent %>" data-reverse="<%= model.ascent %>"></b> m.</span>
+        <span class="total-ascent">Total ascent: <b data-initial="<%= details.ascent %>" data-reverse="<%= details.descent %>"></b> m.</span>
+        <span class="total-ascent">Total descent: <b data-initial="<%= details.descent %>" data-reverse="<%= details.ascent %>"></b> m.</span>
       </td>
     </tr>
     </tfoot>
