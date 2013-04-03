@@ -114,8 +114,6 @@ var PolylineModel = Backbone.Model.extend({
     if (line_weight > 15) line_weight = 15;
 
     var color = this.get_color(route_model.get('surface_id'));
-    console.log(route_model.get('surface_id'), color);
-
     var lineSymbol = {
       path       : freq_asc > freq_desc ? google.maps.SymbolPath.FORWARD_CLOSED_ARROW : google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
       fillColor  : "#009900",

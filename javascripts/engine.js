@@ -367,13 +367,8 @@ $(function () {
           limit : 20000
         },
         success    : function (json) {
-          var data = [];
-          for (var id in json) {
-            json[id].id = id;
-            data.push(json[id]);
-          }
-          console.log('received items:', data.length, data);
-          $this.routes = new RoutesCollection(data); // build collection
+          console.log('received items:', json.length, json);
+          $this.routes = new RoutesCollection(json); // build collection
 
           _.debounce($.proxy(function () {
             $this.$el.trigger('routes.received');
